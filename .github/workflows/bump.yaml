@@ -1,8 +1,9 @@
+name: Bump CI image
 on:
  push:
   branches:
     - master
-
+ 
 jobs:
   test:
     environment: production
@@ -34,8 +35,8 @@ jobs:
           labels: |
             bump version
           branch: "bump-ci-image-${{ github.sha }}"
-          commit-message: "chore: Bump ci image to ${{ needs.build.outputs.imageDigest }}"
-          title: "Bump ci image to ${{ needs.build.outputs.imageDigest }}"
+          commit-message: "Updating CI image hash"
+          title: "Update image hash"
           delete-branch: true
           body: |
             Update ci image to a new hash.
