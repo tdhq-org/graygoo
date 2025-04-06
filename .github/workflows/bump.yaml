@@ -1,0 +1,39 @@
+on:
+ push:
+
+jobs:
+  test:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: debug
+        run: echo ${{ vars }}
+      - name: debug
+        run: echo ${{ vars.WORKLEVATOR_APP_ID }}
+      - name: Get installation token
+        uses: actions/create-github-app-token@v1
+        id: token
+        with:
+          app-id: "${{ vars.WORKLEVATOR_APP_ID }}"
+          private-key: "${{ secrets.WORKLEVATOR_PRIVATE_KEY }}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Update version
+        run: sed -i -E "s/(start).+/\1 ${RANDOM}/" .github/workflows/sut.yaml
+
+      - name: Create PR
+        id: cpr
+        uses: ./.github/actions/create-pull-request
+        with:
+          base: master
+          token: "${{ steps.token.outputs.token }}"
+          labels: |
+            bump version
+          branch: "bump-ci-image-${{ github.sha }}"
+          commit-message: "chore: Bump ci image to ${{ needs.build.outputs.imageDigest }}"
+          title: "Bump ci image to ${{ needs.build.outputs.imageDigest }}"
+          delete-branch: true
+          body: |
+            Update ci image to a new hash.
